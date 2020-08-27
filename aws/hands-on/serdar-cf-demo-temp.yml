@@ -1,0 +1,20 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: This template creates an EC2 instance which enables SSH connection.
+
+Resources:
+  SerdarCFInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-02354e95b39ca8dec
+      InstanceType: t2.micro
+      KeyName: serdar-cfdemo.kp
+      SecurityGroups:
+        - serdar.cf-demo-sg
+      Tags: 
+        - Key: Name 
+          Value: serdar-cf-instance
+
+
+
+  
