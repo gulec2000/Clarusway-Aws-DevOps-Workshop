@@ -1,14 +1,14 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: This template creates an EC2 instance to run static web site with Apache web server
 Resources:
-  MustafaCFInstance: 
+  SerdarCFInstance: 
     Type: AWS::EC2::Instance
     Properties:
       ImageId: ami-0c94855ba95c71c99
       InstanceType: t2.micro
       KeyName: serdar-cfdemo.kp
       SecurityGroups:
-        - serdar.cf-demo-sg
+        - workshop_aws
       Tags:
         - Key: Name
           Value: Web server of Kittens Carousel
@@ -23,6 +23,8 @@ Resources:
           sudo chmod -R 777 /var/www/html
           cd /var/www/html
           wget https://raw.githubusercontent.com/gulec2000/Clarusway-Aws-DevOps-Workshop/master/aws/projects/101-kittens-carousel-static-website-ec2/static-web/index.html
-          wget https://raw.githubusercontent.com/aws/projects/101-kittens-carousel-static-website-ec2/static-web/cat0.jpg
-          wget https://raw.githubusercontent.com/aws/projects/101-kittens-carousel-static-website-ec2/static-web/cat1.jpg
-          wget https://raw.githubusercontent.com/aws/projects/101-kittens-carousel-static-website-ec2/static-web/cat2.jpg
+          wget https://raw.githubusercontent.com/gulec2000/Clarusway-Aws-DevOps-Workshop/master/aws/projects/101-kittens-carousel-static-website-ec2/static-web/cat0.jpg
+          wget https://raw.githubusercontent.com/gulec2000/Clarusway-Aws-DevOps-Workshop/master/aws/projects/101-kittens-carousel-static-website-ec2/static-web/cat1.jpg
+          wget https://raw.githubusercontent.com/gulec2000/Clarusway-Aws-DevOps-Workshop/master/aws/projects/101-kittens-carousel-static-website-ec2/static-web/cat2.jpg
+
+        
