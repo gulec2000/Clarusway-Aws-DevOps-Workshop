@@ -1,6 +1,8 @@
 # Hands-on Flask-03 : Handling Forms and SQL with Flask Web Application
 
-Purpose of the this hands-on training is to give the students introductory knowledge of how to handle forms, how to connect to database and how to use sql within Flask web application on Amazon Linux 2 EC2 instance. 
+Purpose of the this hands-on training is to give the students introductory 
+knowledge of how to handle forms, how to connect to database and how to use 
+sql within Flask web application on Amazon Linux 2 EC2 instance. 
 
 ![HTTP Methods in Flask](./http-methods-flask.png)
 
@@ -39,9 +41,11 @@ At the end of the this hands-on training, students will be able to;
 ## Part 1 - Getting to know HTTP methods (GET & POST)
 
 
-HTTP (Hypertext Transfer Protocol) is a request-response protocol. A client on one side (web browser) asks or requests something from a server and the server on the other side sends a response to that client. 
+HTTP (Hypertext Transfer Protocol) is a request-response protocol. A client on one side 
+(web browser) asks or requests something from a server and the server on the other side sends a response to that client. 
 
-When sending request, the client can send data with using different http methods like `GET, POST, PUT, HEAD, DELETE, PATCH, OPTIONS`, but the most common ones are `GET` and `POST`.
+When sending request, the client can send data with using different http methods like 
+`GET, POST, PUT, HEAD, DELETE, PATCH, OPTIONS`, but the most common ones are `GET` and `POST`.
 
 ![Get and Post Requests](./get-post-request.jpg)
 
