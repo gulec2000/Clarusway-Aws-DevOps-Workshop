@@ -48,12 +48,13 @@ Resources:
               yum update -y
               yum install python3 -y
               pip3 install flask
-              TOKEN="dc2986ea06284582b9d21a6c0e0aefdd57349150"
-              FOLDER="https://$TOKEN@raw.githubusercontent.com/gulec2000/Clarusway-Aws-DevOps-Workshop/master/aws/projects/002-milliseconds-converter/"
-              curl -s --create-dirs -o "/home/ec2-user/templates/index.html" -L "$FOLDER"templates/index.html
-              curl -s --create-dirs -o "/home/ec2-user/templates/result.html" -L "$FOLDER"templates/result.html
-              curl -s --create-dirs -o "/home/ec2-user/app.py" -L "$FOLDER"app.py
-              python3 /home/ec2-user/app.py
+              wget https://raw.githubusercontent.com/gulec2000/Clarusway-Aws-DevOps-Workshop/master/aws/projects/002-milliseconds-converter/app.py
+              mkdir templates
+              cd templates
+              wget https://raw.githubusercontent.com/gulec2000/Clarusway-Aws-DevOps-Workshop/master/aws/projects/002-milliseconds-converter/templates/index.html
+              wget https://raw.githubusercontent.com/gulec2000/Clarusway-Aws-DevOps-Workshop/master/aws/projects/002-milliseconds-converter/templates/result.html
+              cd ..
+              python3 app.py
 
   WebServerTargetGroup:
     Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
@@ -71,12 +72,12 @@ Resources:
       SecurityGroups:
         - !GetAtt ALBSecurityGroup.GroupId
       Subnets: # from default VPS subnets, we can get those values, since we dont make subnet mappings
-        - subnet-077c9758
-        - subnet-3246e63c
-        - subnet-3ccd235a
-        - subnet-8d8dbfb3
-        - subnet-c41ba589
-        - subnet-ed49bccc
+        - subnet-3cab3132
+        - subnet-22973a7d
+        - subnet-6b46e94a
+        - subnet-2fa1d162
+        - subnet-05798d34
+        - subnet-e6f45480
       Type: application
 
   ALBListener:
