@@ -3,20 +3,21 @@ Description: |
   CloudFormation Template for phonebook web application. This app is going to run on AWS Application Load Balancer with Autoscaling Group of Elastic Compute Cloud(EC2) Intances and Relational Database Service (RDS). 
 Parameters:
   
-Resources:
-  ALBSecurityGroup:
+Resources: 
+  ALBSecurityGroup: # Completed
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription:  Enable HTTP for ALB
+      GroupDescription:  Enable HTTP(80) for ALB
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
           CidrIp: 0.0.0.0/0
-  WebServerSecurityGroup:
+
+  WebServerSecurityGroup: #Completed
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Enable HTTP for App from ALB
+      GroupDescription: Enable HTTP, SSH and MySQL/Aurora for App from ALB
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 22
@@ -26,7 +27,19 @@ Resources:
           FromPort: 80
           ToPort: 80
           SourceSecurityGroupId: !GetAtt ALBSecurityGroup.GroupId
-  WebServerLaunchTemplate:
+        - IpProtocol: '-1'
+          FromPort: 3306
+          ToPort: 3306
+          CidrIp: 0.0.0.0/0
+
+  RDSSecurityGroup: # Completed
+    Type: "AWS::RDS::DBSecurityGroup"
+    Properties:
+      DBSecurityGroupIngress: #required
+        - EC2SecurityGroupName: !Ref WebServerSecurityGroup
+      GroupDescription: DBSecurityGroup #required
+
+  WebServerLaunchTemplate: # Completed
     Type: AWS::EC2::LaunchTemplate
     Properties:
       LaunchTemplateData: 
@@ -47,15 +60,93 @@ Resources:
               yum update -y
               yum install python3 -y
               pip3 install flask
-              wget https://raw.githubusercontent.com/gulec2000/Clarusway-Aws-DevOps-Workshop/master/aws/projects/002-milliseconds-converter/app.py
+              pip3 install flask-mysql
+              pip3 install flask-Ext
+              wget https://raw.githubusercontent.com/gulec2000/Clarusway-Aws-DevOps-Workshop/master/aws/projects/004-phonebook-web-application/phonebook-app.py
               mkdir templates
               cd templates
-              wget https://raw.githubusercontent.com/gulec2000/Clarusway-Aws-DevOps-Workshop/master/aws/projects/002-milliseconds-converter/templates/index.html
-              wget https://raw.githubusercontent.com/gulec2000/Clarusway-Aws-DevOps-Workshop/master/aws/projects/002-milliseconds-converter/templates/result.html
+              wget https://raw.githubusercontent.com/gulec2000/Clarusway-Aws-DevOps-Workshop/master/aws/projects/004-phonebook-web-application/templates/index.html
+              wget https://raw.githubusercontent.com/gulec2000/Clarusway-Aws-DevOps-Workshop/master/aws/projects/004-phonebook-web-application/templates/add-update.htmll
+              wget https://raw.githubusercontent.com/gulec2000/Clarusway-Aws-DevOps-Workshop/master/aws/projects/004-phonebook-web-application/templates/delete.html
               cd ..
-              python3 app.py
+              python3 phonebook-app.py
 
+  RDSDatabaseLaunchTemplate: # Completed
+    Type: "AWS::RDS::DBInstance"
+    Properties:
+      AllocatedStorage: '20'
+      BackupRetentionPeriod: 7
+      DBName: PhonebookDatabase
+      DBInstanceClass: db.t2.micro
+      DBSecurityGroups:
+          - !Ref RDSSecurityGroup
+      DeleteAutomatedBackups: true
+      DeletionProtection: true
+      Engine: MySQL
+      EngineVersion: 8.0.19
+      MasterUsername: admin
+      MasterUserPassword: Pl123456789
+      
+  ALBTargetGroup: # Completed
+    Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
+    Properties:
+      HealthCheckEnabled: true
+      HealthCheckIntervalSeconds: 30
+      HealthCheckTimoutSeconds: 5
+      HealthyThresholdCount: 3
+      Port: 80
+      Protocol: HTTP
+      TargetType: instance
+      VpcId: !GetAtt WebServerSecurityGroup.VpcId
+  
+  ApplicationLoadBalancer: # Completed
+    Type: "AWS::ElasticLoadBalancingV2::LoadBalancer"
+    Properties:
+      IpAddressType: ipv4
+      Scheme: internet-facing
+      SecurityGroups:
+        - !GetAtt ALBSecurityGroup.GroupId
+      Subnets: # from default VPS subnets, we can get those values, since we dont make subnet mappings
+        - subnet-3cab3132
+        - subnet-22973a7d
+        - subnet-6b46e94a
+        - subnet-2fa1d162
+        - subnet-05798d34
+        - subnet-e6f45480
+      Type: application
 
+  ALBListener: # Completed
+    Type: "AWS::ElasticLoadBalancingV2::Listener"
+    Properties:
+      DefaultActions: #required
+        - TargetGroupArn: !Ref ALBTargetGroup
+          Type: forward
+      LoadBalancerArn: !Ref ApplicationLoadBalancer #required
+      Port: 80 #required
+      Protocol: HTTP #required
 
-              
+  ALBAutoScalingGroup: # Completed
+    Type: "AWS::AutoScaling::AutoScalingGroup"
+    Properties:
+      AvailabilityZones:
+        !GetAZs ""
+      DesiredCapacity: 2
+      HealthCheckGracePeriod: 90
+      HealthCheckType: ELB
+      LaunchTemplate: 
+        LaunchTemplateId: !Ref WebServerLaunchTemplate
+        Version: !GetAtt WebServerLaunchTemplate.LatestVersionNumber
+      MaxSize: 3 #required
+      MinSize: 1 #required
+      TargetGroupARNs:
+        - !Ref WebServerTargetGroup
+
 Outputs:
+  WebsiteURL: 
+    Value: !Sub 
+      - http://${ALBAddress}
+      - ALBAddress: !GetAtt ApplicationLoadBalancer.DNSName
+    Description: Phonebook Application Load Balancer URL 
+  RDSEndpoint:
+    Description: Phonebook DB Endpoint
+    Value: !Ref RDSDatabaseLaunchTemplate
