@@ -89,7 +89,7 @@ Resources:
     Properties:
       HealthCheckEnabled: true
       HealthCheckIntervalSeconds: 30
-      HealthCheckTimoutSeconds: 5
+      HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 3
       Port: 80
       Protocol: HTTP
@@ -99,8 +99,6 @@ Resources:
   ApplicationLoadBalancer: # Completed
     Type: "AWS::ElasticLoadBalancingV2::LoadBalancer"
     Properties:
-      IpAddressType: ipv4
-      Scheme: internet-facing
       SecurityGroups:
         - !GetAtt ALBSecurityGroup.GroupId
       Subnets: # from default VPS subnets, we can get those values, since we dont make subnet mappings
