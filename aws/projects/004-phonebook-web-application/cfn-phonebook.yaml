@@ -84,7 +84,7 @@ Resources:
       MasterUsername: admin
       MasterUserPassword: Pl123456789
       
-  ALBTargetGroup: # Completed
+  WebServerTargetGroup: # Completed
     Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
     Properties:
       HealthCheckEnabled: true
