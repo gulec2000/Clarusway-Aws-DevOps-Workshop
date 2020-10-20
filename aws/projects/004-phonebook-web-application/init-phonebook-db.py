@@ -31,6 +31,7 @@ def init_phonebook_db(cursor):
     #cursor.execute(drop_table)
     cursor.execute(phonebook_table)
     cursor.execute(data)
+init_phonebook_db()
 
 try:
   cnx = mysql.connector.connect(**config)

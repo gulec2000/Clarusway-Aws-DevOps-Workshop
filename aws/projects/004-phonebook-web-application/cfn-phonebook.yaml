@@ -63,6 +63,7 @@ Resources:
               pip3 install flask-mysql
               pip3 install flask-Ext
               wget https://raw.githubusercontent.com/gulec2000/Clarusway-Aws-DevOps-Workshop/master/aws/projects/004-phonebook-web-application/phonebook-app.py
+              echo "${myRDSDatabase.Endpoint.Address}" >> dbserver.endpoint
               mkdir templates
               cd templates
               wget https://raw.githubusercontent.com/gulec2000/Clarusway-Aws-DevOps-Workshop/master/aws/projects/004-phonebook-web-application/templates/index.html
@@ -70,6 +71,7 @@ Resources:
               wget https://raw.githubusercontent.com/gulec2000/Clarusway-Aws-DevOps-Workshop/master/aws/projects/004-phonebook-web-application/templates/delete.html
               cd ..
               python3 phonebook-app.py
+              
 
   RDSDatabaseLaunchTemplate: # Completed
     Type: "AWS::RDS::DBInstance"
