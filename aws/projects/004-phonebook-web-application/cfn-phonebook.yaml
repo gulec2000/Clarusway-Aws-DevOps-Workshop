@@ -1,0 +1,61 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: |
+  CloudFormation Template for phonebook web application. This app is going to run on AWS Application Load Balancer with Autoscaling Group of Elastic Compute Cloud(EC2) Intances and Relational Database Service (RDS). 
+Parameters:
+  
+Resources:
+  ALBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription:  Enable HTTP for ALB
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+  WebServerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable HTTP for App from ALB
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          SourceSecurityGroupId: !GetAtt ALBSecurityGroup.GroupId
+  WebServerLaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateData: 
+        ImageId: ami-0947d2ba12ee1ff75
+        InstanceType: t2.micro
+        KeyName: first_ec2_key
+        SecurityGroupIds: 
+          - !GetAtt WebServerSecurityGroup.GroupId
+        TagSpecifications:
+          - ResourceType: instance
+            Tags:
+              - Key: Name
+                Value: !Sub Web Server of ${AWS::StackName}
+        UserData: 
+          Fn::Base64:
+            !Sub |
+              #! /bin/bash
+              yum update -y
+              yum install python3 -y
+              pip3 install flask
+              wget https://raw.githubusercontent.com/gulec2000/Clarusway-Aws-DevOps-Workshop/master/aws/projects/002-milliseconds-converter/app.py
+              mkdir templates
+              cd templates
+              wget https://raw.githubusercontent.com/gulec2000/Clarusway-Aws-DevOps-Workshop/master/aws/projects/002-milliseconds-converter/templates/index.html
+              wget https://raw.githubusercontent.com/gulec2000/Clarusway-Aws-DevOps-Workshop/master/aws/projects/002-milliseconds-converter/templates/result.html
+              cd ..
+              python3 app.py
+
+
+
+              
+Outputs:
