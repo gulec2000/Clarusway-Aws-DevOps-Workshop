@@ -115,7 +115,7 @@ Resources:
     Type: "AWS::ElasticLoadBalancingV2::Listener"
     Properties:
       DefaultActions: #required
-        - TargetGroupArn: !Ref ALBTargetGroup
+        - TargetGroupArn: !Ref WebServerTargetGroup
           Type: forward
       LoadBalancerArn: !Ref ApplicationLoadBalancer #required
       Port: 80 #required
