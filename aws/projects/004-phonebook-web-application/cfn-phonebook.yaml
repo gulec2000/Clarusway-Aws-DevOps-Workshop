@@ -1,12 +1,20 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: |
-  CloudFormation Template for phonebook web application. This app is going to run on AWS Application Load Balancer with Autoscaling Group of Elastic Compute Cloud(EC2) Intances and Relational Database Service (RDS). 
+  CloudFormation Template for Phonebook Application. This template creates Application Load Balancer 
+  with Auto Scaling Group of Amazon Linux 2 (ami-026dea5602e368e96) EC2 Instances which host Python Flask Web Application.
+  EC2 instances are placed within WebServerSecurityGroup which allows http (80) connections only from ALBSecurityGroup,
+  and allows tcp(3306) connections only within itself. RDS DB instance is placed within WebServerSecurityGroup so that
+  Database Server can communicate with Web Servers.
+  Application Load Balancer is placed within ALBSecurityGroup which allows http (80) connections from anywhere.
+  WebServerASG Auto Scaling Group is using the WebServerLT Launch Template in order to spin up instances needed.
+  WebServerLT Launch Template is configured to prepare Python Flask environment on EC2,
+  and to deploy Phonebook Application on Flask Server after downloading the app code from Github repository. 
 
 Resources: 
   ALBSecurityGroup: # Completed
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription:  Enable HTTP(80) for ALB
+      GroupDescription:  Enable HTTP for Application Load Balancer
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 80
@@ -15,7 +23,7 @@ Resources:
   WebServerSecurityGroup: #Completed
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Enable HTTP, SSH and MySQL/Aurora for App from ALB
+      GroupDescription: Enable HTTP for Flask Web Server, SSH for enterin to EC2
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 22
@@ -25,16 +33,15 @@ Resources:
           FromPort: 80
           ToPort: 80
           SourceSecurityGroupId: !GetAtt ALBSecurityGroup.GroupId
-        - IpProtocol: '-1'
-          FromPort: 3306
-          ToPort: 3306
-          CidrIp: 0.0.0.0/0
-  RDSSecurityGroup: # Completed
+        
+  myDBSecurityGroup: 
     Type: "AWS::RDS::DBSecurityGroup"
     Properties:
+      GroupDescription: Front-end access
       DBSecurityGroupIngress: #required
-        - EC2SecurityGroupName: !Ref WebServerSecurityGroup
-      GroupDescription: DBSecurityGroup #required
+        - CIDRIP: 0.0.0.0/0
+        - EC2SecurityGroupId: !GetAtt WebServerSecurityGroup.GroupId
+      
   WebServerLaunchTemplate: # Completed
     Type: AWS::EC2::LaunchTemplate
     Properties:
@@ -48,10 +55,11 @@ Resources:
           - ResourceType: instance
             Tags:
               - Key: Name
-                Value: !Sub Web Server of ${AWS::StackName}
+                Value: !Sub Web Server of ${AWS::StackName} Stack
         UserData: 
           Fn::Base64:
-            !Sub |
+            !Sub 
+            - |
               #! /bin/bash
               yum update -y
               yum install python3 -y
@@ -59,7 +67,7 @@ Resources:
               pip3 install flask-mysql
               pip3 install flask-Ext
               wget https://raw.githubusercontent.com/gulec2000/Clarusway-Aws-DevOps-Workshop/master/aws/projects/004-phonebook-web-application/phonebook-app.py
-              echo "${RDSDatabaseLaunchTemplate.Endpoint.Address}" >> dbserver.endpoint
+              echo "${myDBURI}" > /home/ec2-user/dbserver.endpoint
               mkdir templates
               cd templates
               wget https://raw.githubusercontent.com/gulec2000/Clarusway-Aws-DevOps-Workshop/master/aws/projects/004-phonebook-web-application/templates/index.html
@@ -67,30 +75,33 @@ Resources:
               wget https://raw.githubusercontent.com/gulec2000/Clarusway-Aws-DevOps-Workshop/master/aws/projects/004-phonebook-web-application/templates/delete.html
               cd ..
               python3 phonebook-app.py
+            - myDBURI !GetAtt MyDatabaseServer.Endpoint.Address
               
   RDSDatabaseLaunchTemplate: # Completed
     Type: "AWS::RDS::DBInstance"
     Properties:
-      AllocatedStorage: '20'
-      BackupRetentionPeriod: 7
-      DBName: PhonebookDatabase
-      DBInstanceClass: db.t2.micro
+      AllocatedStorage: 20
+      AllowMajorVersionUpgrade: false
+      AutoMinorVersionUpgrade: true
+      BackupRetentionPeriod: 0
+      DBInstanceIdentifier: phonebook-app-db
+      DBName: phonebook
+      DBInstanceClass: db.t2.micro #required
       DBSecurityGroups:
-          - !Ref RDSSecurityGroup
-      DeleteAutomatedBackups: true
-      DeletionProtection: true
+          - !Ref myDBSecurityGroup
       Engine: MySQL
       EngineVersion: 8.0.19
       MasterUsername: admin
       MasterUserPassword: Pl123456789
+      MultiAZ: false
+      Port: 3306
+      PubliclyAccessible: true
       
   WebServerTargetGroup: # Completed
     Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
     Properties:
-      HealthCheckEnabled: true
-      HealthCheckIntervalSeconds: 30
-      HealthCheckTimeoutSeconds: 5
-      HealthyThresholdCount: 3
+      HealthyThresholdCount: 2
+      UnhealthyThresholdCount: 3
       Port: 80
       Protocol: HTTP
       TargetType: instance
@@ -99,6 +110,8 @@ Resources:
   ApplicationLoadBalancer: # Completed
     Type: "AWS::ElasticLoadBalancingV2::LoadBalancer"
     Properties:
+      IpAddressType: ipv4
+      Scheme: internet-facing
       SecurityGroups:
         - !GetAtt ALBSecurityGroup.GroupId
       Subnets: # from default VPS subnets, we can get those values, since we dont make subnet mappings
@@ -109,6 +122,7 @@ Resources:
         - subnet-05798d34
         - subnet-e6f45480
       Type: application
+
   ALBListener: # Completed
     Type: "AWS::ElasticLoadBalancingV2::Listener"
     Properties:
@@ -118,13 +132,14 @@ Resources:
       LoadBalancerArn: !Ref ApplicationLoadBalancer #required
       Port: 80 #required
       Protocol: HTTP #required
-  ALBAutoScalingGroup: # Completed
+
+  WebServerAutoScalingGroup: # Completed
     Type: "AWS::AutoScaling::AutoScalingGroup"
     Properties:
       AvailabilityZones:
         !GetAZs ""
       DesiredCapacity: 2
-      HealthCheckGracePeriod: 90
+      HealthCheckGracePeriod: 300
       HealthCheckType: ELB
       LaunchTemplate: 
         LaunchTemplateId: !Ref WebServerLaunchTemplate
@@ -140,6 +155,3 @@ Outputs:
       - http://${ALBAddress}
       - ALBAddress: !GetAtt ApplicationLoadBalancer.DNSName
     Description: Phonebook Application Load Balancer URL 
-  RDSEndpoint:
-    Description: Phonebook DB Endpoint
-    Value: !Ref RDSDatabaseLaunchTemplate

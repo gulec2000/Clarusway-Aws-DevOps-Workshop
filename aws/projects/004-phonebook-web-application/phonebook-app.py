@@ -10,7 +10,7 @@ db_endpoint = open("/home/ec2-user/dbserver.endpoint", 'r', encoding='UTF-8')
 # Configure mysql database
 app.config['MYSQL_DATABASE_HOST'] = db_endpoint.readline().strip()
 app.config['MYSQL_DATABASE_USER'] = 'admin'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'clarusway-1'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'Pl123456789'
 app.config['MYSQL_DATABASE_DB'] = 'phonebook'
 app.config['MYSQL_DATABASE_PORT'] = 3306
 db_endpoint.close()
@@ -37,6 +37,7 @@ def init_phonebook_db():
     INSERT INTO phonebook.phonebook (name, number)
     VALUES
         ("Callahan", "1234567890"),
+        ("Serdar", "6785543544"),
         ("Sergio Taco", "67854"),
         ("Vincenzo Altobelli", "876543554");
     """
@@ -125,7 +126,7 @@ def find_records():
     if request.method == 'POST':
         keyword = request.form['username']
         persons = find_persons(keyword)
-        return render_template('index.html', persons=persons, keyword=keyword, show_result=True, developer_name='Student_Name')
+        return render_template('index.html', persons=persons, keyword=keyword, show_result=True, developer_name='E2141-Serdar')
     else:
         return render_template('index.html', show_result=False, developer_name='E2141-Serdar')
 
@@ -190,6 +191,6 @@ def delete_record():
 
 # Add a statement to run the Flask application which can be reached from any host on port 80.
 if __name__== '__main__':
-    # init_phonebook_db()
+    init_phonebook_db()
     # app.run(debug=True)
     app.run(host='0.0.0.0', port=80) 
