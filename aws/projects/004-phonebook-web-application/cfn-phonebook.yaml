@@ -40,7 +40,6 @@ Resources:
       GroupDescription: Front-end access
       DBSecurityGroupIngress: #required
         - CIDRIP: 0.0.0.0/0
-        - DBSecurityGroupName: dbse #required
         - EC2SecurityGroupId: !GetAtt WebServerSecurityGroup.GroupId
       
   WebServerLaunchTemplate: # Completed
@@ -75,7 +74,7 @@ Resources:
               wget https://raw.githubusercontent.com/gulec2000/Clarusway-Aws-DevOps-Workshop/master/aws/projects/004-phonebook-web-application/templates/delete.html
               cd ..
               python3 phonebook-app.py
-              myDBURI !GetAtt MyDatabaseServer.Endpoint.Address
+              myDBURI: !GetAtt RDSDatabaseLaunchTemplate.Endpoint.Address
               
   RDSDatabaseLaunchTemplate: # Completed
     Type: "AWS::RDS::DBInstance"
@@ -129,7 +128,7 @@ Resources:
     Properties:
       DefaultActions: #required
         - TargetGroupArn: !Ref WebServerTargetGroup
-          Type: forward
+        - Type: forward
       LoadBalancerArn: !Ref ApplicationLoadBalancer #required
       Port: 80 #required
       Protocol: HTTP #required
