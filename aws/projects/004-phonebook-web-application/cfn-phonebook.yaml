@@ -129,7 +129,7 @@ Resources:
     Properties:
       DefaultActions: #required
         - TargetGroupArn: !Ref WebServerTargetGroup
-        - Type: forward
+          Type: forward
       LoadBalancerArn: !Ref ApplicationLoadBalancer #required
       Port: 80 #required
       Protocol: HTTP #required
