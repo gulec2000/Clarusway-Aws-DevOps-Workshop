@@ -40,6 +40,7 @@ Resources:
       GroupDescription: Front-end access
       DBSecurityGroupIngress: #required
         - CIDRIP: 0.0.0.0/0
+        - DBSecurityGroupName: dbse #required
         - EC2SecurityGroupId: !GetAtt WebServerSecurityGroup.GroupId
       
   WebServerLaunchTemplate: # Completed
@@ -58,8 +59,7 @@ Resources:
                 Value: !Sub Web Server of ${AWS::StackName} Stack
         UserData: 
           Fn::Base64:
-            !Sub 
-            - |
+            !Sub |
               #! /bin/bash
               yum update -y
               yum install python3 -y
@@ -75,10 +75,11 @@ Resources:
               wget https://raw.githubusercontent.com/gulec2000/Clarusway-Aws-DevOps-Workshop/master/aws/projects/004-phonebook-web-application/templates/delete.html
               cd ..
               python3 phonebook-app.py
-            - myDBURI !GetAtt MyDatabaseServer.Endpoint.Address
+              myDBURI !GetAtt MyDatabaseServer.Endpoint.Address
               
   RDSDatabaseLaunchTemplate: # Completed
     Type: "AWS::RDS::DBInstance"
+    DeletionPolicy: Delete
     Properties:
       AllocatedStorage: 20
       AllowMajorVersionUpgrade: false
