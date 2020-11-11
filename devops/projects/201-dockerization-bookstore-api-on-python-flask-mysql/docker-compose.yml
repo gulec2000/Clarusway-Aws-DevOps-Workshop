@@ -10,7 +10,7 @@ services:
     networks:
       - clarusnet
   my-app: 
-    image: serdarcw/bookstore:latest
+    image: serdar/bookstore:latest
     restart: always
     depends_on: 
       - database
