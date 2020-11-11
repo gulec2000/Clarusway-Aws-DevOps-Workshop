@@ -19,6 +19,6 @@ services:
     networks: 
       - clarusnet
   
-  networks:
-    clarusnet:
-      driver: bridge
+networks:
+  clarusnet:
+    driver: bridge
