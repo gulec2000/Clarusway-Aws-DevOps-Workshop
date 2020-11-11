@@ -12,7 +12,7 @@ services:
   my-app: 
     image: serdarcw/bookstore:latest
     restart: always
-    depends-on: 
+    depends_on: 
       - database
     ports:
     - "80":"80"
