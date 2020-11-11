@@ -337,13 +337,13 @@ print('My first python job which is run within Jenkinsfile.')
 
 ```groovy
 pipeline {
-    agent { docker { image 'python:alpine' } }
+    agent any
     stages {
         stage('run') {
             steps {
                 echo 'Clarusway_Way to Reinvent Yourself'
-                sh 'python3 --version'
-                sh 'python3 pipeline.py'
+                sh 'python --version'
+                sh 'python pipeline.py'
             }
         }
     }
@@ -384,6 +384,8 @@ public class Hello {
 ```
 
 - Since the Jenkins Server is running on Java platform, we can leverage from the already available java environment.
+
+- * sudo yum install java-devel on ec2 instance( if there is problem with javac in your system)
 
 - Update the `Jenkinsfile` with the following pipeline script, and explain the changes.
 

@@ -5,7 +5,7 @@ from flaskext.mysql import MySQL
 # Create an object named app 
 app = Flask(__name__)
 
-# Configure sqlite database
+# Configure sqlite database, which is also 'database' as services in docker-compose
 app.config['MYSQL_DATABASE_HOST'] = 'database'
 app.config['MYSQL_DATABASE_USER'] = 'clarusway'
 app.config['MYSQL_DATABASE_PASSWORD'] = 'Clarusway_1'
@@ -126,7 +126,7 @@ def remove_book(book):
 # and assign to the static route of ('/')
 @app.route('/')
 def home():
-    return "Welcome to Callahan's Bookstore API Service"
+    return "Welcome to Serdar's Bookstore API Service"
 
 # Write a function named `get_books` which returns all books in JSON format for `GET`,
 # and assign to the static route of ('/books')
