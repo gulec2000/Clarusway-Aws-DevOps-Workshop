@@ -1,0 +1,40 @@
+version: '3.7'
+services: 
+  database:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: Pl123456789
+      MYSQL_DATABASE: bookstore_db
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: Clarusway_1
+    networks:
+      - clarusnet
+    volumes:
+      - db-data:/var/lib/mysql
+    configs:
+      - source: initialdb
+        target: /docker-entrypoint-initdb.d/init.sql
+
+  app: 
+    image: "${ECR_REGISTRY}/${APP_REPO_NAME}:latest"
+    deploy:
+        mode: global
+        update_config:
+          parallelism: 2
+          delay: 5s
+          order: start-first
+    ports:
+      - "80:80"
+    networks:
+      - clarusnet
+  
+networks:
+  clarusnet:
+    driver: overlay
+
+volumes:
+    db-data:
+
+configs:
+  initialdb:
+    file: ./init.sql
