@@ -124,7 +124,7 @@ cd /opt/tomcat/conf
 
 
 
-- Go to the `   /opt/tomcat/webapps/host-manager/META-INF/` and edit file `context.xml`. Actually commenting out the tagged `CookieProcessor` and `Valve` parts.
+- Go to the `/opt/tomcat/webapps/host-manager/META-INF/` and edit file `context.xml`. Actually commenting out the tagged `CookieProcessor` and `Valve` parts.
 
 ```bash
 <?xml version="1.0" encoding="UTF-8"?>
@@ -197,7 +197,7 @@ cd /opt/tomcat/conf
 ## Part 5 - Auto start of tomcat server at boot
 
 ```bash
-crontab -e
+sudo crontab -e
 ```
 
 Enter the following line and save it

@@ -10,6 +10,8 @@ At the end of this hands-on training, students will be able to;
 - Explain how to provision a web server using Ansible
 - Explain how to provision a database server using Ansible
 
+![ho-04](ho-04.png)
+
 ## Outline
 
 - Part 1 - Build the Infrastructure (3 EC2 Instances with Red Hat Enterprise Linux 8 AMI)
@@ -458,7 +460,13 @@ $ echo "USE ecomdb; show tables like 'products'; " | mysql
 - Append the content below into ```playbook.yml``` file.
 
 ```yml
-        
+    - selinux:
+        state: disabled    
+
+    - name: Restart service httpd
+      service:
+        name: httpd
+        state: restarted
 ```
 
 - Explain that we have to disable the ```Security Enhanced Linux``` in order to be able to query a remote database.

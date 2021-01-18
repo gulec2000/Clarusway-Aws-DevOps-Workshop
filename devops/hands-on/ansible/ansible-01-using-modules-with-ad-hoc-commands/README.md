@@ -87,7 +87,7 @@ ansible_ssh_private_key_file=/home/ec2-user/<pem file>
 - Copy your pem file to the /etc/ansible/ directory. First, go to your pem file directory on your local PC and run the following command.
 
 ```bash
-$ scp -i <pem file> <pem file> ec2-user@<public DNS name of Control Node>:/home/ec2-user
+$   scp -i <pem file> <pem file> ec2-user@<public DNS name of Control Node>:/home/ec2-user
 ```
 - Check if the file is transferred to the remote machine. 
 
